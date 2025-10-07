@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Generator - Sentiment-Based</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .output-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .output-card.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sentiment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .sentiment-positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .sentiment-negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .sentiment-neutral {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .generated-text {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .features {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .feature-item {
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 10px;
+        }
+
+        .feature-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-indicator.online {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .status-indicator.offline {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="statusIndicator">
+        <span id="statusText">Checking connection...</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Text Generator</h1>
+            <p>Generate sentiment-aligned text based on your prompts</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="main-card">
+            <h2 class="section-title">📝 Input</h2>
+            
+            <div class="input-group">
+                <label for="promptInput">Enter Your Prompt</label>
+                <textarea 
+                    id="promptInput" 
+                    rows="5" 
+                    placeholder="e.g., Write about the exciting future of artificial intelligence..."
+                ></textarea>
+            </div>
+
+            <div class="controls-grid">
+                <div class="input-group">
+                    <label for="sentimentSelect">Sentiment</label>
+                    <select id="sentimentSelect">
+                        <option value="auto">Auto-Detect</option>
+                        <option value="positive">Positive</option>
+                        <option value="neutral">Neutral</option>
+                        <option value="negative">Negative</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="lengthSelect">Text Length</label>
+                    <select id="lengthSelect">
+                        <option value="short">Short (~50 words)</option>
+                        <option value="medium" selected>Medium (~100 words)</option>
+                        <option value="long">Long (~200 words)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="modelSelect">Generation Method</label>
+                    <select id="modelSelect">
+                        <option value="false" selected>Template-Based (Fast)</option>
+                        <option value="true">GPT-2 Model (Slower, More Creative)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="generateBtn" onclick="generateText()">
+                    🚀 Generate Text
+                </button>
+                <button class="btn-secondary" onclick="resetForm()">
+                    🔄 Reset
+                </button>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing sentiment and generating text...</p>
+            </div>
+        </div>
+
+        <div class="output-card" id="outputCard">
+            <h2 class="section-title">📄 Generated Output</h2>
+            
+            <div id="sentimentBadge"></div>
+            
+            <div class="generated-text" id="generatedText"></div>
+            
+            <div class="meta-info">
+                <span>Word Count: <strong id="wordCount">0</strong></span>
+                <span>Confidence: <strong id="confidence">0%</strong></span>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>✨ Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🎯 Sentiment Analysis</h3>
+                    <p>Automatically detects positive, negative, or neutral sentiment using DistilBERT</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📏 Custom Length</h3>
+                    <p>Choose from short, medium, or long text outputs to match your needs</p>
+                </div>
+                <div class="feature-item">
+                    <h3>⚙️ Manual Override</h3>
+                    <p>Select sentiment manually if you want specific emotional tone</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🤖 Dual Generation</h3>
+                    <p>Template-based for speed or GPT-2 for creative outputs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // Check backend health on page load
+        async function checkBackendHealth() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = '✓ Backend Connected';
+                } else {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = '⚠️ Backend Running (Degraded)';
+                }
+            } catch (error) {
+                statusIndicator.className = 'status-indicator offline';
+                statusText.textContent = '✗ Backend Offline';
+                showError('Cannot connect to backend. Please ensure Flask server is running on port 5000.');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Generate text
+        async function generateText() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            const sentiment = document.getElementById('sentimentSelect').value;
+            const length = document.getElementById('lengthSelect').value;
+            const useModel = document.getElementById('modelSelect').value === 'true';
+
+            if (!prompt) {
+                showError('Please enter a prompt');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingIndicator').classList.add('show');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('outputCard').classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/generate-text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        sentiment: sentiment,
+                        length: length,
+                        use_model: useModel
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Display results
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to generate text. Please ensure the backend server is running.');
+            } finally {
+                document.getElementById('loadingIndicator').classList.remove('show');
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            const sentimentIcons = {
+                'positive': '😊',
+                'negative': '😟',
+                'neutral': '😐'
+            };
+
+            // Update sentiment badge
+            const badgeDiv = document.getElementById('sentimentBadge');
+            badgeDiv.className = `sentiment-badge sentiment-${data.sentiment}`;
+            badgeDiv.innerHTML = `
+                ${sentimentIcons[data.sentiment]} 
+                Detected: ${data.sentiment.charAt(0).toUpperCase() + data.sentiment.slice(1)}
+            `;
+
+            // Update generated text
+            document.getElementById('generatedText').textContent = data.text;
+
+            // Update meta info
+            document.getElementById('wordCount').textContent = data.word_count;
+            document.getElementById('confidence').textContent = `${(data.confidence * 100).toFixed(1)}%`;
+
+            // Show output card
+            document.getElementById('outputCard').classList.add('show');
+
+            // Scroll to output
+            document.getElementById('outputCard').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('promptInput').value = '';
+            document.getElementById('sentimentSelect').value = 'auto';
+            document.getElementById('lengthSelect').value = 'medium';
+            document.getElementById('modelSelect').value = 'false';
+            document.getElementById('outputCard').classList.remove('show');
+        }
+
+        // Handle Enter key in textarea (Ctrl+Enter to submit)
+        document.getElementById('promptInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateText();
+            }
+        });
+
+        // Check backend health on page load
+        window.addEventListener('load', () => {
+            checkBackendHealth();
+            
+            // Recheck every 30 seconds
+            setInterval(checkBackendHealth, 30000);
+        });
+    </script>
+</body>
+</html>

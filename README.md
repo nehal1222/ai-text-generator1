@@ -2,8 +2,7 @@
 
 ## Project Overview
 
-An intelligent text generation system that analyzes the sentiment of user prompts and generates coherent, sentiment-aligned paragraphs or essays. The application features real-time sentiment detection and customizable text generation with an intuitive user interface.
-
+An intelligent text generation system that analyzes the sentiment of user prompts and generates coherent, sentiment-aligned paragraphs or essays. The application features real-time sentiment detection and customizable text generation with an intuitive user interface. Deployed at: https://aitextgen.netlify.app/.
 ## Features
 
 - **Automatic Sentiment Analysis**: Detects positive, negative, or neutral sentiment from input prompts

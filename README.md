@@ -1,4 +1,3 @@
-# AI-Text-Generator
 # AI Sentiment-Based Text Generator
 
 ## Project Overview

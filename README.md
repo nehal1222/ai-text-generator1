@@ -23,7 +23,7 @@ An intelligent text generation system that analyzes the sentiment of user prompt
 - **NLTK** - Natural language processing utilities
 
 ### Frontend
-- **React.js** - UI framework
+- **HTML** - Web page
 - **Tailwind CSS** - Styling
 - **Lucide Icons** - Icon library
 

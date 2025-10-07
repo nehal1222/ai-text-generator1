@@ -99,7 +99,6 @@ For a simpler single-file deployment:
 
 ```bash
 pip install -r requirements.txt
-streamlit run streamlit_app.py
 ```
 
 The app will open automatically at `http://localhost:8501`
@@ -111,21 +110,13 @@ sentiment-text-generator/
 │
 ├── backend/
 │   ├── app.py                 # Flask application
-│   ├── sentiment_analyzer.py  # Sentiment analysis module
-│   ├── text_generator.py      # Text generation module
-│   ├── models/                # Pre-trained model storage
 │   └── requirements.txt       # Python dependencies
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.js            # Main React component
-│   │   ├── components/       # UI components
+│   │   ├── index.html           
 │   │   └── styles/           # CSS files
-│   ├── public/
-│   └── package.json          # Node dependencies
-│
-├── streamlit_app.py          # Alternative Streamlit version
-├── README.md                 # This file
+│   ├── README.md                 # This file
 └── documentation.md          # Detailed technical documentation
 ```
 
@@ -138,43 +129,6 @@ sentiment-text-generator/
 3. **Choose length**: Select desired output length (short/medium/long)
 4. **Generate**: Click the "Generate Text" button
 5. **View results**: See the detected sentiment and generated text
-
-### API Endpoints (Flask Backend)
-
-#### Analyze Sentiment
-```bash
-POST /api/analyze-sentiment
-Content-Type: application/json
-
-{
-  "text": "Your input text here"
-}
-
-Response:
-{
-  "sentiment": "positive",
-  "confidence": 0.95
-}
-```
-
-#### Generate Text
-```bash
-POST /api/generate-text
-Content-Type: application/json
-
-{
-  "prompt": "Write about technology",
-  "sentiment": "positive",
-  "length": "medium"
-}
-
-Response:
-{
-  "text": "Generated text content...",
-  "sentiment": "positive",
-  "word_count": 105
-}
-```
 
 ## Methodology
 
@@ -288,21 +242,6 @@ Uses pre-trained GPT-2 from OpenAI:
 - [ ] Advanced prompt engineering options
 - [ ] Integration with GPT-4 API for premium tier
 
-## Deployment
-
-### Streamlit Cloud (Recommended)
-1. Push code to GitHub
-2. Visit [streamlit.io/cloud](https://streamlit.io/cloud)
-3. Connect repository
-4. Deploy with one click
-
-### Heroku
-```bash
-heroku create sentiment-text-gen
-git push heroku main
-heroku open
-```
-
 ### Netlify (Frontend Only)
 1. Build React app: `npm run build`
 2. Deploy build folder to Netlify
@@ -318,18 +257,6 @@ torch==2.0.0
 nltk==3.8
 flask-cors==4.0.0
 gunicorn==21.0.0
-streamlit==1.25.0
-```
-
-### Node.js (package.json)
-```json
-{
-  "dependencies": {
-    "react": "^18.2.0",
-    "lucide-react": "^0.263.1",
-    "axios": "^1.4.0"
-  }
-}
 ```
 
 ## Testing
@@ -352,15 +279,10 @@ Contributions are welcome! Please follow these guidelines:
 3. Make your changes
 4. Submit a pull request
 
-## License
-
-MIT License - See LICENSE file for details
-
 ## Contact
 
 For questions or support:
-- Email: your-email@example.com
-- GitHub Issues: [Project Issues](github-link)
+- Email: inehalsinha@gmail.com
 
 ## Acknowledgments
 
